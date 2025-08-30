@@ -20,6 +20,10 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> findByName(String name){
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
+
     // buscar produto por id
     public Product findProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
