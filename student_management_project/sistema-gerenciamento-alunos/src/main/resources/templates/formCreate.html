@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Aluno</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Novo Aluno</h1>
+
+        <form th:action="@{/students}" th:object="${student}" method="post">
+            <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" th:field="*{name}">
+                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" th:field="*{email}">
+                <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Idade:</label>
+                <input type="number" th:field="*{age}">
+                <span th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Curso:</label>
+                <input type="text" th:field="*{course}">
+                <span th:if="${#fields.hasErrors('course')}" th:errors="*{course}"></span>
+            </div>
+
+            <button type="submit" class="btn">Salvar</button>
+            <a href="/students" class="btn secondary">Voltar</a>
+        </form>
+    </div>
+</body>
+</html>
