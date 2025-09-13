@@ -1,5 +1,6 @@
 package br.com.aweb.to_do_list.controller;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,9 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.aweb.to_do_list.model.Todo;
 import br.com.aweb.to_do_list.repository.TodoRepository;
 import jakarta.validation.Valid;
-
-
-
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequestMapping("/todo")
@@ -32,15 +32,15 @@ public class TodoController {
 
     // @GetMapping("/home")
     // public ModelAndView home() {
-    //     var modelAndView = new ModelAndView("home");
-    //     modelAndView.addObject("professor", "Vinicius Gaban");
-    //     var alunos = List.of(
-    //         "Isaac Newton",
-    //         "Albert Einstein",
-    //         "Marie Curie");
-    //     modelAndView.addObject("alunos", alunos);
-    //     modelAndView.addObject("ehVerdade", true);
-    //     return modelAndView;
+    // var modelAndView = new ModelAndView("home");
+    // modelAndView.addObject("professor", "Vinicius Gaban");
+    // var alunos = List.of(
+    // "Isaac Newton",
+    // "Albert Einstein",
+    // "Marie Curie");
+    // modelAndView.addObject("alunos", alunos);
+    // modelAndView.addObject("ehVerdade", true);
+    // return modelAndView;
     // }
 
     @GetMapping
@@ -50,9 +50,9 @@ public class TodoController {
         // return modelAndView;
 
         return new ModelAndView(
-            "list", Map.of("todos", todoRepository.findAll(Sort.by("deadline"))));
+                "list", Map.of("todos", todoRepository.findAll(Sort.by("deadline"))));
     }
-    
+
     @GetMapping("/create")
     public ModelAndView create() {
         return new ModelAndView("form", Map.of("todo", new Todo()));
@@ -60,7 +60,7 @@ public class TodoController {
 
     @PostMapping("/create")
     public String create(@Valid Todo todo, BindingResult result, RedirectAttributes attributes) {
-        if(result.hasErrors())
+        if (result.hasErrors())
             return "form";
 
         todoRepository.save(todo);
@@ -72,20 +72,50 @@ public class TodoController {
     public ModelAndView edit(@PathVariable Long id) {
         Optional<Todo> todo = todoRepository.findById(id);
 
-        if(todo.isPresent())
+        if (todo.isPresent() && todo.get().getFinishedAt() == null)
             return new ModelAndView("form", Map.of("todo", todo.get()));
 
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    
-    @PostMapping("/edit")
-    public String create(@Valid Todo todo, BindingResult result) {
-        if(result.hasErrors())
+
+    @PostMapping("/edit/{id}")
+    public String edit(@Valid Todo todo, BindingResult result) {
+        if (result.hasErrors())
             return "form";
 
         todoRepository.save(todo);
 
         return "redirect:/todo";
+    }
+
+    @GetMapping("/delete/{id}")
+    public ModelAndView delete(@PathVariable Long id) {
+        var todo = todoRepository.findById(id);
+
+        if (todo.isPresent())
+            return new ModelAndView("delete", Map.of("todo", todo.get()));
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/delete/{id}")
+    public String delete(Todo todo) {
+        todoRepository.delete(todo);
+        return "redirect:/todo";
+    }
+
+    @PostMapping("/finish/{id}")
+    public String finish(@PathVariable Long id) {
+        var optionalTodo = todoRepository.findById(id);
+
+        if (optionalTodo.isPresent()) {
+            var todo = optionalTodo.get();
+            todo.setFinishedAt(LocalDate.now());
+            todoRepository.save(todo);
+            return "redirect:/todo";
+        }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
 }

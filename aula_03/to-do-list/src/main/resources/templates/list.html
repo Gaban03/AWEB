@@ -45,9 +45,26 @@
             <td th:text="${#temporals.format(todo.deadline)}">---</td>
             <td th:text="${#temporals.format(todo.finishedAt) ?: '-'}">---</td>
             <td>
-              <a href="" class="btn btn-sm btn-primary">Concluir</a>
-              <a href="" class="btn btn-sm btn-secondary">Editar</a>
-              <a href="" class="btn btn-sm btn-danger">Excluir</a>
+              <form
+                method="POST"
+                class="d-inline"
+                th:action="@{/todo/finish/{id}(id=${todo.id})}"
+              >
+                <button th:classappend="${todo.finishedAt} != null ? 'disabled' : ''" type="submit" class="btn btn-sm btn-primary">
+                  Concluir
+                </button>
+              </form>
+              <a
+                th:href="@{/todo/edit/{id}(id=${todo.id})}"
+                class="btn btn-sm btn-secondary"
+                th:classappend="${todo.finishedAt} != null ? 'disabled' : ''"
+                >Editar</a
+              >
+              <a
+                th:href="@{/todo/delete/{id}(id=${todo.id})}"
+                class="btn btn-sm btn-danger"
+                >Exluir</a
+              >
             </td>
           </tr>
         </tbody>
