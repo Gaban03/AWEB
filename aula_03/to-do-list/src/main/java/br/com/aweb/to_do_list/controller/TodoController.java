@@ -20,8 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.aweb.to_do_list.model.Todo;
 import br.com.aweb.to_do_list.repository.TodoRepository;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequestMapping("/todo")

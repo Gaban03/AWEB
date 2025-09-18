@@ -1,10 +1,6 @@
-package br.com.aweb.to_do_list.model;
+package br.com.aweb.maintenance_system.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -28,25 +23,28 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode(of = "id")
 @ToString
-public class Todo {
+public class ServiceOrder {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 3, max = 100)
-    @NotBlank
+    @Size(min = 3, max = 100, message = "O mínimo de caracteres do campo é 3 e o máximo é 100.")
+    @NotBlank(message = "Titulo é obrigatório.")
     @Column(nullable = false, length = 100)
     private String title;
+
+    @NotBlank(message = "Nome do solicitante é obrigatório.")
+    @Column(nullable = false, length = 50)
+    private String nameApplicant;
+
+    @NotBlank(message = "Descrição é obrigatória.")
+    @Column(nullable = false, length = 250)
+    private String description;
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @NotNull
-    //@FutureOrPresent
-    @DateTimeFormat(iso = ISO.DATE)
-    @Column(nullable = false)
-    private LocalDate deadline;
-
     @Column(nullable = true)
-    private LocalDate finishedAt;
+    private LocalDateTime finishedAt;
 }
