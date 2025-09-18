@@ -3,14 +3,11 @@ FROM maven:3.9.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-# Copia pom.xml e baixa dependências primeiro (cache melhor)
-COPY pom.xml .
+COPY maintenance-system/pom.xml .
 RUN mvn dependency:go-offline
 
-# Copia o resto do código
-COPY . .
+COPY maintenance-system/ .
 
-# Build sem rodar testes
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Imagem final
