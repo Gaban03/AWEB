@@ -17,69 +17,91 @@ import br.com.aweb.sistema_vendas.model.Cliente;
 import br.com.aweb.sistema_vendas.service.ClienteService;
 import jakarta.validation.Valid;
 
-
-
 @Controller
 @RequestMapping("/clientes")
 public class ClienteController {
-    
+
     @Autowired
     private ClienteService clienteService;
 
+    // Listar clientes
     @GetMapping
-    public ModelAndView getAll(){
-        return new ModelAndView("cliente/list", Map.of("customers", clienteService.getAllCustomer()));
+    public ModelAndView list() {
+        return new ModelAndView("cliente/list", Map.of("clientes", clienteService.listarTodos()));
     }
 
-    @GetMapping("/new")
+    // Formulário de cadastro
+    @GetMapping("/novo")
     public ModelAndView create() {
-        return new ModelAndView("cliente/form", Map.of("customer", new Cliente()));
+        return new ModelAndView("cliente/form", Map.of("cliente", new Cliente()));
     }
 
-    @PostMapping("/new")
-    public String create(@Valid Cliente customer, BindingResult result) {
-        if(result.hasErrors()){
-            return "cliente/form";
-        }        
-        clienteService.add(customer);
-        return "redirect:/clientes";
-    }
-
-     @GetMapping("/edit/{id}")
-    public ModelAndView update(@PathVariable String id) {
-        var optionalCustomer = clienteService.getById(id);
-        if (optionalCustomer.isPresent()) {
-            return new ModelAndView("cliente/form", Map.of("customer", optionalCustomer.get()));
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-
-    @PostMapping("/edit/{id}")
-    public String update(@Valid Cliente customer, BindingResult result) {
+    // Salvar cliente
+    @PostMapping("/novo")
+    public String create(@Valid Cliente cliente, BindingResult result) {
         if (result.hasErrors()) {
             return "cliente/form";
         }
 
-        clienteService.update(customer.getCpf(), customer);
+        try {
+            clienteService.salvar(cliente);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("CPF")) {
+                result.rejectValue("cpf", "error.cliente", e.getMessage());
+            } else if (e.getMessage().contains("E-mail")) {
+                result.rejectValue("email", "error.cliente", e.getMessage());
+            }
+            return "cliente/form";
+        }
 
         return "redirect:/clientes";
     }
 
+    // Formulário de edição
+    @GetMapping("/edit/{id}")
+    public ModelAndView edit(@PathVariable Long id) {
+        var optionalCliente = clienteService.buscarPorId(id);
+        if (optionalCliente.isPresent()) {
+            return new ModelAndView("cliente/form", Map.of("cliente", optionalCliente.get()));
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    // Atualizar cliente
+    @PostMapping("/edit/{id}")
+    public String edit(@Valid Cliente cliente, BindingResult result) {
+        if (result.hasErrors()) {
+            return "cliente/form";
+        }
+
+        try {
+            clienteService.atualizar(cliente.getId(), cliente);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("CPF")) {
+                result.rejectValue("cpf", "error.cliente", e.getMessage());
+            } else if (e.getMessage().contains("E-mail")) {
+                result.rejectValue("email", "error.cliente", e.getMessage());
+            }
+            return "cliente/form";
+        }
+
+        return "redirect:/clientes";
+    }
+
+    // Excluir cliente
     @GetMapping("/delete/{id}")
-    public ModelAndView delete(@PathVariable String id) {
-        var optionalCustomer = clienteService.getById(id);
-        if (optionalCustomer.isPresent()) {
-            return new ModelAndView("cliente/delete", Map.of("customer", optionalCustomer.get()));
+    public ModelAndView delete(@PathVariable Long id) {
+        var optionalCliente = clienteService.buscarPorId(id);
+        if (optionalCliente.isPresent()) {
+            return new ModelAndView("cliente/delete", Map.of("cliente", optionalCliente.get()));
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(Cliente customer) {
-        clienteService.delete(customer.getCpf());
+    public String delete(Cliente cliente) {
+        clienteService.excluir(cliente.getId());
         return "redirect:/clientes";
     }
-    
-    
 
 }

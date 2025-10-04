@@ -10,37 +10,41 @@
     <h1>Excluir Cliente</h1>
 
     <div class="alert alert-danger">
-        <p>Tem certeza que deseja excluir o cliente <strong th:text="${customer.fullName}"></strong>?</p>
+        <p>Tem certeza que deseja excluir o cliente <strong th:text="${cliente.nome}"></strong>?</p>
     </div>
 
     <table class="table table-bordered">
         <tr>
             <th>Nome</th>
-            <td th:text="${customer.fullName}"></td>
+            <td th:text="${cliente.nome}"></td>
+        </tr>
+        <tr>
+            <th>E-mail</th>
+            <td th:text="${cliente.email}"></td>
         </tr>
         <tr>
             <th>CPF</th>
-            <td th:text="${customer.cpf}"></td>
+            <td th:text="${cliente.cpf}"></td>
         </tr>
         <tr>
-            <th>Email</th>
-            <td th:text="${customer.email}"></td>
+            <th>Telefone</th>
+            <td th:text="${cliente.telefone}"></td>
         </tr>
         <tr>
-            <th>Preço</th>
-            <td th:text="${customer.telephone}"></td>
+            <th>Endereço</th>
+            <td>
+                <span th:text="${cliente.logradouro}"></span>,
+                <span th:text="${cliente.numero}"></span>
+                <span th:text="${cliente.complemento}"></span> -
+                <span th:text="${cliente.bairro}"></span>,
+                <span th:text="${cliente.cidade}"></span> -
+                <span th:text="${cliente.uf}"></span>,
+                CEP: <span th:text="${cliente.cep}"></span>
+            </td>
         </tr>
-        <tr>
-            <th>CEP</th>
-            <td th:text="${customer.cep}"></td>
-        </tr>   
-         <tr>
-            <th>cidade</th>
-            <td th:text="${customer.city}"></td>
-        </tr>       
     </table>
 
-    <form th:action="@{/clientes/delete/{id}(id=${customer.cpf})}" method="post">
+    <form th:action="@{/clientes/delete/{id}(id=${cliente.id})}" method="post">
         <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
         <a th:href="@{/clientes}" class="btn btn-secondary">Cancelar</a>
     </form>

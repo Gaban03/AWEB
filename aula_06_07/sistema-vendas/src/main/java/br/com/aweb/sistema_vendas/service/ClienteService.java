@@ -14,53 +14,80 @@ import jakarta.transaction.Transactional;
 public class ClienteService {
 
     @Autowired
-    ClienteRepository clienteRepository;
+    private ClienteRepository clienteRepository;
 
+    // CREATE
     @Transactional
-    public Cliente add(Cliente customer) {
-        return clienteRepository.save(customer);
+    public Cliente salvar(Cliente cliente) {
+        if (clienteRepository.existsByEmail(cliente.getEmail())) {
+            throw new IllegalArgumentException("E-mail já cadastrado.");
+        }
+        if (clienteRepository.existsByCpf(cliente.getCpf())) {
+            throw new IllegalArgumentException("CPF já cadastrado.");
+        }
+        Cliente clienteSalvo = clienteRepository.save(cliente);
+        return clienteSalvo;
     }
 
-    public List<Cliente> getAllCustomer(){
-        return clienteRepository.findAll();
+    // READ
+    public List<Cliente> listarTodos() {
+        List<Cliente> clientes = clienteRepository.findAll();
+        return clientes;
     }
 
-    public Optional<Cliente> getById(String id){
-        return clienteRepository.findById(id);
+    public Optional<Cliente> buscarPorId(Long id) {
+        Optional<Cliente> optionalCliente = clienteRepository.findById(id);
+        return optionalCliente;
     }
 
-    public Cliente update(String id, Cliente updatedCustomer){
-        var optionalCustomer = getById(id);
-        if(!optionalCustomer.isPresent())
-            throw new IllegalArgumentException("Cliente não encontrado.");
-
-        var existsCustomer = optionalCustomer.get();
-
-        existsCustomer.setFullName(updatedCustomer.getFullName());
-        existsCustomer.setEmail(updatedCustomer.getEmail());
-        existsCustomer.setCpf(updatedCustomer.getCpf());
-        existsCustomer.setTelephone(updatedCustomer.getTelephone());
-        existsCustomer.setPublicPlace(updatedCustomer.getPublicPlace());
-        existsCustomer.setNumber(updatedCustomer.getNumber());
-        existsCustomer.setComplement(updatedCustomer.getComplement());
-        existsCustomer.setNeighborhood(updatedCustomer.getNeighborhood());
-        existsCustomer.setCity(updatedCustomer.getCity());
-        existsCustomer.setUf(updatedCustomer.getUf());
-        existsCustomer.setCep(updatedCustomer.getCep());
-
-        var saveCustomer = clienteRepository.save(existsCustomer);
-
-        return saveCustomer;
-    }
-
+    // UPDATE
     @Transactional
-    public void delete(String id){
-        var optionalCustomer = getById(id);
-        if (!optionalCustomer.isPresent())
+    public Cliente atualizar(Long id, Cliente clienteAtualizado) {
+        Optional<Cliente> optionalCliente = clienteRepository.findById(id);
+        if (!optionalCliente.isPresent()) {
             throw new IllegalArgumentException("Cliente não encontrado.");
+        }
 
+        Cliente clienteExistente = optionalCliente.get();
+
+        // valida e-mail se alterado
+        if (!clienteExistente.getEmail().equals(clienteAtualizado.getEmail())) {
+            if (clienteRepository.existsByEmail(clienteAtualizado.getEmail())) {
+                throw new IllegalArgumentException("E-mail já cadastrado.");
+            }
+        }
+
+        // valida CPF se alterado
+        if (!clienteExistente.getCpf().equals(clienteAtualizado.getCpf())) {
+            if (clienteRepository.existsByCpf(clienteAtualizado.getCpf())) {
+                throw new IllegalArgumentException("CPF já cadastrado.");
+            }
+        }
+
+        // atualiza os campos
+        clienteExistente.setNome(clienteAtualizado.getNome());
+        clienteExistente.setEmail(clienteAtualizado.getEmail());
+        clienteExistente.setCpf(clienteAtualizado.getCpf());
+        clienteExistente.setTelefone(clienteAtualizado.getTelefone());
+        clienteExistente.setLogradouro(clienteAtualizado.getLogradouro());
+        clienteExistente.setNumero(clienteAtualizado.getNumero());
+        clienteExistente.setComplemento(clienteAtualizado.getComplemento());
+        clienteExistente.setBairro(clienteAtualizado.getBairro());
+        clienteExistente.setCidade(clienteAtualizado.getCidade());
+        clienteExistente.setUf(clienteAtualizado.getUf());
+        clienteExistente.setCep(clienteAtualizado.getCep());
+
+        Cliente clienteSalvo = clienteRepository.save(clienteExistente);
+        return clienteSalvo;
+    }
+
+    // DELETE
+    @Transactional
+    public void excluir(Long id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new IllegalArgumentException("Cliente não encontrado.");
+        }
         clienteRepository.deleteById(id);
     }
 
-    
 }
